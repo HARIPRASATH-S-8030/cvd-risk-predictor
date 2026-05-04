@@ -178,4 +178,4 @@ if submitted:
 
 # Footer
 st.markdown("---")
-st.markdown("*Disclaimer: This tool is for educational purposes. Always consult a healthcare professional.*")ducational purposes. Always consult a healthcare professional.*")
+st.markdown("*Disclaimer: This tool is for educational purposes. Always consult a healthcare professional.*")
