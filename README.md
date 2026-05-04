@@ -1,9 +1,5 @@
 # 🫀 Interpretable Cardiovascular Disease Risk Prediction
 
-[
-[
-[
-[
 
 > **Making Heart Disease Predictions Transparent and Trustworthy**  
 > *A Machine Learning system that predicts CVD risk AND explains why - with only 0.7% accuracy trade-off for complete interpretability*
@@ -300,7 +296,6 @@ cvd-risk-predictor/
 ├── selector.pkl              # Feature selector (0.3 MB)
 ├── features.pkl              # Feature names list (0.1 MB)
 ├── README.md                 # This file
-└── LICENSE                   # MIT License
 ```
 
 ***
@@ -394,10 +389,6 @@ print(f"CVD Risk: {risk:.1%}")
 
 ***
 
-## 👥 For ECE Students
-
-This project is particularly valuable for Electrical/Computer Engineering students because it demonstrates:
-
 ### Skills Demonstrated
 
 | Skill Area | Application in This Project |
@@ -454,17 +445,6 @@ Contributions are welcome! Here's how:
 
 ***
 
-## 📄 License
-
-Distributed under the MIT License. See `LICENSE` file for more information.
-
-**You can freely:**
-- Use this code commercially
-- Modify and distribute
-- Use in your own projects
-
-**Just provide attribution.**
-
 ***
 
 ## 🙏 Acknowledgments
@@ -482,9 +462,9 @@ Distributed under the MIT License. See `LICENSE` file for more information.
 | Resource | Link |
 |----------|------|
 | **Live App** | [https://cvd-risk-predictor-test.streamlit.app/](https://cvd-risk-predictor-test.streamlit.app/) |
-| **GitHub** | [https://github.com/your-username/cvd-risk-predictor](https://github.com/your-username/cvd-risk-predictor) |
-| **Report Issues** | [GitHub Issues](https://github.com/your-username/cvd-risk-predictor/issues) |
-| **Author Email** | [your.email@university.edu](mailto:your.email@university.edu) |
+| **GitHub** | [https://github.com/HARIPRASATH-S-8030/cvd-risk-predictorr](https://github.com/HARIPRASATH-S-8030/cvd-risk-predictor) |
+| **Report Issues** | [GitHub Issues](https://github.com/HARIPRASATH-S-8030/cvd-risk-predictor/issues) |
+| **Author Email** | [shari4030mit@gmail.com](mailto:shari4030mit@gmail.com) |
 
 ***
 
