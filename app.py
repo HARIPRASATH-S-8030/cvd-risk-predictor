@@ -1,20 +1,17 @@
-# app.py - WITH INTERPRETABLE CLINICAL RULES
+# app.py - CORRECTED VERSION
 import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
-import matplotlib.pyplot as plt
-from sklearn.tree import plot_tree
 
 # Load models
 @st.cache_resource
 def load_models():
-    nn_model = joblib.load('best_model.pkl')      # Neural Network (73.9%)
-    rule_model = joblib.load('rule_tree.pkl')     # Clinical Rules (73.2%)
+    model = joblib.load('best_model.pkl')
     scaler = joblib.load('scaler.pkl')
     selector = joblib.load('selector.pkl')
     features = joblib.load('features.pkl')
-    return nn_model, rule_model, scaler, selector, features
+    return model, scaler, selector, features
 
 st.set_page_config(page_title="CVD Risk Predictor", page_icon="🫀", layout="wide")
 
@@ -58,18 +55,30 @@ if submitted:
     cholesterol_val = ["Normal", "Above Normal", "Well Above Normal"].index(cholesterol) + 1
     smoke_val = 1 if smoker == "Yes" else 0
     active_val = 1 if active == "Yes" else 0
+    gluc_val = 1  # Default normal glucose
+    alco_val = 0  # Default no alcohol
     
     # Load models
     nn_model, rule_model, scaler, selector, features = load_models()
     
-    # Create feature vector
+    # Create DataFrame with EXACT column names the model expects
+    # These must match the features used during training
     input_data = pd.DataFrame([[
-        age, gender_val, height, weight, ap_hi, ap_lo,
-        cholesterol_val, 1, smoke_val, 0, active_val
+        age,                    # age_years
+        gender_val,             # gender
+        height,                 # height
+        weight,                 # weight
+        ap_hi,                  # ap_hi
+        ap_lo,                  # ap_lo
+        cholesterol_val,        # cholesterol
+        gluc_val,               # gluc
+        smoke_val,              # smoke
+        alco_val,               # alco
+        active_val              # active
     ]], columns=['age_years', 'gender', 'height', 'weight', 'ap_hi', 'ap_lo',
                  'cholesterol', 'gluc', 'smoke', 'alco', 'active'])
     
-    # Feature engineering
+    # Feature engineering (same as in training)
     input_data['bmi'] = input_data['weight'] / ((input_data['height']/100) ** 2)
     input_data['pulse_pressure'] = input_data['ap_hi'] - input_data['ap_lo']
     input_data['map'] = input_data['ap_lo'] + (input_data['pulse_pressure'] / 3)
@@ -80,6 +89,23 @@ if submitted:
     input_data['age_risk'] = ((input_data['age_years'] - 50) / 10).clip(0, 3)
     input_data['age_x_cholesterol'] = input_data['age_years'] * input_data['cholesterol']
     input_data['bmi_x_pulse'] = input_data['bmi'] * input_data['pulse_pressure']
+    
+    # Get the feature names the scaler expects
+    # Use all columns except the original 11 we started with
+    all_features = input_data.columns.tolist()
+    
+    # Select only the features that were used during training
+    # The scaler and selector were fitted on specific columns
+    # We need to ensure the order matches exactly
+    
+    # Method: Use the scaler's feature names if available
+    try:
+        # If scaler has feature_names_in_ attribute
+        expected_features = scaler.feature_names_in_
+        input_data = input_data[expected_features]
+    except:
+        # Otherwise, use all features we created
+        pass
     
     # Scale and select
     input_scaled = scaler.transform(input_data)
@@ -121,33 +147,6 @@ if submitted:
     # Risk meter
     st.progress(risk)
     
-    # Clinical explanation (only for Decision Tree)
-    if model_type == "Clinical Decision Tree (Interpretable)":
-        st.subheader("🔍 Clinical Explanation (Why this prediction?)")
-        
-        # Simple rule-based explanation
-        explanation = []
-        if age > 55:
-            explanation.append("• **Age > 55 years** → Significant risk factor")
-        if ap_hi > 140:
-            explanation.append(f"• **High blood pressure** ({ap_hi} mmHg) → Increases risk")
-        if cholesterol_val >= 2:
-            explanation.append(f"• **{cholesterol} cholesterol** → Metabolic risk")
-        if smoke_val == 1:
-            explanation.append("• **Smoking** → Major cardiovascular risk factor")
-        if active_val == 1:
-            explanation.append("• **Physical activity** → Protective factor (reduces risk)")
-        if age <= 45 and ap_hi <= 120 and cholesterol_val == 1:
-            explanation.append("• **Low risk profile** → Young age, normal BP, healthy cholesterol")
-        
-        if explanation:
-            for item in explanation:
-                st.write(item)
-        else:
-            st.write("No specific risk factors identified")
-        
-        st.info("💡 This explanation is based on clinical guidelines and is fully interpretable by healthcare professionals.")
-    
     # Recommendations
     st.subheader("📋 Recommendations")
     if risk > 0.7:
@@ -156,7 +155,27 @@ if submitted:
         st.warning("🏃 **Lifestyle modifications recommended:** Regular exercise, healthy diet, BP monitoring")
     else:
         st.success("✅ **Maintain healthy lifestyle:** Continue regular check-ups")
+    
+    # Clinical explanation
+    st.subheader("🔍 Key Risk Factors Identified")
+    explanation = []
+    if age > 55:
+        explanation.append("• **Age > 55 years** → Significant risk factor")
+    if ap_hi > 140:
+        explanation.append(f"• **High blood pressure** ({ap_hi} mmHg) → Increases risk")
+    if cholesterol_val >= 2:
+        explanation.append(f"• **{cholesterol} cholesterol** → Metabolic risk")
+    if smoke_val == 1:
+        explanation.append("• **Smoking** → Major cardiovascular risk factor")
+    if active_val == 1:
+        explanation.append("• **Physical activity** → Protective factor (reduces risk)")
+    
+    if explanation:
+        for item in explanation:
+            st.write(item)
+    else:
+        st.write("No major risk factors identified")
 
 # Footer
 st.markdown("---")
-st.markdown("*Disclaimer: This tool is for educational purposes. Always consult a healthcare professional.*")
+st.markdown("*Disclaimer: This tool is for educational purposes. Always consult a healthcare professional.*")ducational purposes. Always consult a healthcare professional.*")
